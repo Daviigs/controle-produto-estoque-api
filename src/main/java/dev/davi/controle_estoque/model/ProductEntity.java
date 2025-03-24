@@ -15,6 +15,7 @@ public class ProductEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
+    @Column(name = "product_id")
     private UUID id;
 
     @NotNull
