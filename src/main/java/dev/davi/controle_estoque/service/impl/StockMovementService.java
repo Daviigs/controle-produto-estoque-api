@@ -11,6 +11,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -43,5 +45,23 @@ public class StockMovementService implements IStockMovementService {
     public StockMovementEntity findById(UUID id){
         return movementRepository.findById(id).
                 orElseThrow(() -> new RuntimeException("Movimentação não encontrada"));
+    }
+
+    @Transactional(readOnly = true)
+    public List<StockMovementEntity> findMovementsByDate(LocalDateTime startDate, LocalDateTime endDate) {
+        if (startDate.isAfter(endDate)) {
+            throw new IllegalArgumentException("A data inicial não pode ser maior que a data final.");
+        }
+        return movementRepository.findByMovementDateBetween(startDate, endDate);
+    }
+
+    @Transactional(readOnly = true)
+    public List<StockMovementEntity> findMovementsByProduct(UUID productId) {
+        return movementRepository.findByProductId(productId);
+    }
+
+    @Transactional(readOnly = true)
+    public List<StockMovementEntity> findMovementsByType(MovementType type) {
+        return movementRepository.findByType(type);
     }
 }

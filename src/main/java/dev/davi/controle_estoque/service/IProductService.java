@@ -15,4 +15,8 @@ public interface IProductService{
     Optional<ProductEntity> findById(UUID id);
 
     List<ProductEntity> findByName(String name);
+
+    List<ProductEntity> findProductsLowStock(int limite);
+
+    List<ProductEntity> findProductsNearExpiration(int dias);
 }

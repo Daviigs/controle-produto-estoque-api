@@ -11,5 +11,9 @@ public interface ProductRepository extends JpaRepository<ProductEntity, UUID> {
 
     List<ProductEntity> findByName(String name);
 
-    ProductEntity findByNameValidity(String name, LocalDate validity);
+    ProductEntity findByNameAndValidity(String name, LocalDate validity);
+
+    List<ProductEntity> findByStockLessThan(int limite);
+
+    List<ProductEntity> findByValidityBefore(LocalDate dataLimite);
 }

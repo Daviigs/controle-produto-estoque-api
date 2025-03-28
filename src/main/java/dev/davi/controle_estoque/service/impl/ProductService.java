@@ -10,7 +10,9 @@ import dev.davi.controle_estoque.service.IStockMovementService;
 import dev.davi.controle_estoque.utils.ProductValidation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -28,17 +30,17 @@ public class ProductService implements IProductService {
         entity.setName(entity.getName().toLowerCase());
         entity.setCategory(entity.getCategory().toLowerCase());
 
-        ProductEntity existing = productRepository.findByNameValidity(entity.getName(), entity.getValidity());
+        ProductEntity existing = productRepository.findByNameAndValidity(entity.getName(), entity.getValidity());
 
         if(existing != null){
             StockMovementEntity stockMovement = new StockMovementEntity();
             stockMovement.setProduct(existing);
             stockMovement.setType(MovementType.IN);
-            stockMovement.setQuantity(entity.getStock());  // Quantidade que está sendo inserida
+            stockMovement.setQuantity(entity.getStock());
             stockMovement.setMovementDate(LocalDateTime.now());
 
-            // Registra a movimentação de entrada
             movementService.registerMovement(existing.getId(), stockMovement);
+            return productRepository.save(existing);
         }
 
         return productRepository.save(entity);
@@ -54,5 +56,16 @@ public class ProductService implements IProductService {
 
     public List<ProductEntity> findByName(String name){
         return productRepository.findByName(name);
+    }
+
+    @Transactional(readOnly = true)
+    public List<ProductEntity> findProductsLowStock(int limite) {
+        return productRepository.findByStockLessThan(limite);
+    }
+
+    @Transactional(readOnly = true)
+    public List<ProductEntity> findProductsNearExpiration(int dias) {
+        LocalDate dataLimite = LocalDate.now().plusDays(dias);
+        return productRepository.findByValidityBefore(dataLimite);
     }
 }
